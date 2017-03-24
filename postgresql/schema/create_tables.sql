@@ -28,4 +28,26 @@ CREATE INDEX geneinfo_chromosome ON NcbiGeneInfo (tax_id, chromosome);
 --
 DROP TABLE IF EXISTS NcbiSeqGene;
 CREATE TABLE NcbiSeqGene (
+                                       -- E.g.
+    tax_id         integer  not null,  -- 9606
+    chromosome     varchar  not null,  -- 17
+    chr_start      integer  not null,  -- 41196312
+    chr_stop       integer  not null,  -- 41277500
+    chr_orient     varchar  not null,  -- -
+    contig         varchar  not null,  -- NT_010783.15
+    ctg_start      integer  not null,  -- 6470464
+    ctg_stop       integer  not null,  -- 6551652
+    ctg_orient     varchar  not null,  -- -
+    feature_name   varchar  not null,  -- BRCA1
+    feature_id     varchar  not null,  -- GeneID:672
+    feature_type   varchar  not null,  -- GENE
+    group_label    varchar  not null,  -- GRCh37.p13-Primary Assembly
+    transcript     varchar  not null,  -- -
+    evidence_code  varchar  not null,  -- best RefSeq;identical;N
+
+    -- Utility columns
+    gene_id        integer  not null   -- 672
 );
+CREATE INDEX seqgene_gene_id ON NcbiSeqGene (tax_id, gene_id);
+CREATE INDEX seqgene_chromosome ON NcbiSeqGene (tax_id, chromosome);
+CREATE INDEX seqgene_chromosome_chr_start ON NcbiSeqGene (tax_id, chromosome, chr_start);
