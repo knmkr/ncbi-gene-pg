@@ -23,7 +23,9 @@ wget -c ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz
 # seq_gene.md
 # - Homo sapiens (Human, Taxonomy ID 9606)
 # - GRCh37p13 (Annotation Release 105)
+# cf: https://gist.github.com/knmkr/27b69b2ae2cedca40b1c5af33be991e9
 wget -c ftp://ftp.ncbi.nlm.nih.gov/genomes/MapView/Homo_sapiens/sequence/ANNOTATION_RELEASE.105/initial_release/seq_gene.md.gz
+#    or ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/mapview/
 
 echo "[INFO] `date +"%Y-%m-%d %H:%M:%S"` Importing data..."
 
