@@ -27,3 +27,14 @@ E.g.
      672 | 17         |  41196312 | 41277500 | -
 (1 row)
 ```
+
+```
+=> SELECT gene_id, chromosome, chr_start, chr_stop, chr_orient FROM ncbiseqgene WHERE chromosome = '1' AND chr_start BETWEEN 100000 AND 200000 ORDER BY chr_start;
+
+  gene_id  | chromosome | chr_start | chr_stop | chr_orient
+-----------+------------+-----------+----------+------------
+ 100420257 | 1          |    131125 |   135677 | +
+    729737 | 1          |    134773 |   140566 | -
+ 100996442 | 1          |    142447 |   174392 | -
+(3 rows)
+```
