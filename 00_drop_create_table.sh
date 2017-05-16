@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -ue
-set -o pipefail
-
 PG_URL=$1
 BASE_DIR=$2
 
@@ -10,6 +7,9 @@ if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <PG_URL> <BASE_DIR>" >&2
     exit 1
 fi
+
+set -ue
+set -o pipefail
 
 echo "[INFO] Drop and Create tables..."
 

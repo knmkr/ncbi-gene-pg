@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -ue
-set -o pipefail
-
 PG_URL=$1
 BASE_DIR=$2
 DATA_DIR=$3
@@ -11,6 +8,9 @@ if [ "$#" -ne 3 ]; then
     echo "Usage: $0 <PG_URL> <BASE_DIR> <DATA_DIR>" >&2
     exit 1
 fi
+
+set -ue
+set -o pipefail
 
 echo "[INFO] `date +"%Y-%m-%d %H:%M:%S"` Fetching data..."
 
