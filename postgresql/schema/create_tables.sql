@@ -18,7 +18,8 @@ CREATE TABLE NcbiGeneInfo (
     full_name_from_nomenclature_authority  varchar  not null,  -- alpha-1-B glycoprotein
     nomenclature_status                    varchar  not null,  -- O
     other_designations                     varchar  not null,  -- alpha-1B-glycoprotein|HEL-S-163pA|epididymis secretory sperm binding protein Li 163pA
-    modification_date                      varchar  not null   -- 20170312
+    modification_date                      varchar  not null,  -- 20170604
+    feature_type                           varchar  not null   -- -
 );
 CREATE INDEX geneinfo_gene_id ON NcbiGeneInfo (tax_id, gene_id);
 CREATE INDEX geneinfo_chromosome ON NcbiGeneInfo (tax_id, chromosome);
