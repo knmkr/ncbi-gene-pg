@@ -1,0 +1,259 @@
+Here is a `README` for anyone interested in using this (fabulous - thank you so much, Kensuke  :-D ) repo and getting those NCBI data into PostgreSQl
+
+**Clone this repo:**
+
+```
+[victoria@victoria apps]$ pwd
+  /mnt/Vancouver/apps
+
+[victoria@victoria apps]$ gc https://github.com/knmkr/ncbi-gene-pg
+  ...
+
+[victoria@victoria ~]$ cd ncbi-gene-pg
+
+[victoria@victoria ncbi-gene-pg]$ dpl    ## << ~/.bashrc alias: date; pwd; ls -l
+
+	Tue Apr 17 10:37:07 PDT 2018
+	/mnt/Vancouver/apps/ncbi-gene-pg
+
+  total 60
+  -rwxr-xr-x 1 victoria victoria   304 Apr 17 09:58 00_drop_create_table.sh
+  -rwxr-xr-x 1 victoria victoria  1320 Apr 17 09:58 01_import_data.sh
+  drwxr-xr-x 3 victoria victoria  4096 Apr 17 09:59 docs
+  -rw-r--r-- 1 victoria victoria 34520 Apr 17 09:58 LICENSE
+  drwxr-xr-x 3 victoria victoria  4096 Apr 17 09:58 postgresql
+  -rw-r--r-- 1 victoria victoria  1235 Apr 17 09:58 README.md
+  drwxr-xr-x 2 victoria victoria  4096 Apr 17 09:58 script
+```
+
+**psql:**
+
+Needed to create, otherwise the `/mnt/Vancouver/apps/ncbi-gene-pg/00_drop_create_table.sh` script throws an error about the missing database:
+
+    [zzz]# CREATE DATABASE ncbi;
+      CREATE DATABASE
+
+**Run scripts:**
+
+```
+  <PG_URL> : postgresql://localhost:5432/ncbi      ## created in psql, above
+<BASE_DIR> : .                                     ## /mnt/Vancouver/apps/ncbi-gene-pg/
+```
+
+```
+[victoria@victoria ncbi-gene-pg]$ ./00_drop_create_table.sh 
+  Usage: ./00_drop_create_table.sh <PG_URL> <BASE_DIR>
+
+[victoria@victoria ncbi-gene-pg]$ ./00_drop_create_table.sh postgresql://localhost:5432/ncbi .
+
+  [INFO] Drop and Create tables...
+  psql:./postgresql/schema/create_tables.sql:4: NOTICE:  00000: table "ncbigeneinfo" does not exist, skipping
+  LOCATION:  DropErrorMsgNonExistent, tablecmds.c:914
+  DROP TABLE
+  CREATE TABLE
+  CREATE INDEX
+  CREATE INDEX
+  psql:./postgresql/schema/create_tables.sql:30: NOTICE:  00000: table "ncbiseqgene" does not exist, skipping
+  LOCATION:  DropErrorMsgNonExistent, tablecmds.c:914
+  DROP TABLE
+  CREATE TABLE
+  CREATE INDEX
+  CREATE INDEX
+  CREATE INDEX
+  [INFO] Done
+
+[victoria@victoria ncbi-gene-pg]$ psql
+  psql: FATAL:  database "victoria" does not exist
+
+[victoria@victoria ncbi-gene-pg]$ psql -d zzz
+
+  psql (10.2)
+  Type "help" for help.
+
+[zzz]# \c ncbi 
+  You are now connected to database "ncbi" as user "victoria".
+
+[ncbi]# \dt
+             List of relations
+┌────────┬──────────────┬───────┬──────────┐
+│ Schema │     Name     │ Type  │  Owner   │
+├────────┼──────────────┼───────┼──────────┤
+│ public │ ncbigeneinfo │ table │ victoria │
+│ public │ ncbiseqgene  │ table │ victoria │
+└────────┴──────────────┴───────┴──────────┘
+
+[ncbi]# -- https://github.com/knmkr/ncbi-gene-pg
+
+[ncbi]# SELECT gene_id, symbol, chromosome, map_location, description FROM ncbigeneinfo WHERE gene_id = 672;
+┌─────────┬────────┬────────────┬──────────────┬─────────────┐
+│ gene_id │ symbol │ chromosome │ map_location │ description │
+├─────────┼────────┼────────────┼──────────────┼─────────────┤
+└─────────┴────────┴────────────┴──────────────┴─────────────┘
+
+[ncbi]# -- Oops: empty db!  Need to run 2nd script!!  :-p
+
+[ncbi]# \q
+
+[victoria@victoria ncbi-gene-pg]$ 
+
+[victoria@victoria ncbi-gene-pg]$ dpl    ## << ~/.bashrc alias: date; pwd; ls -l
+
+	Tue Apr 17 10:55:29 PDT 2018
+	/mnt/Vancouver/apps/ncbi-gene-pg
+
+  total 60
+  -rwxr-xr-x 1 victoria victoria   304 Apr 17 09:58 00_drop_create_table.sh
+  -rwxr-xr-x 1 victoria victoria  1320 Apr 17 09:58 01_import_data.sh
+  drwxr-xr-x 3 victoria victoria  4096 Apr 17 09:59 docs
+  -rw-r--r-- 1 victoria victoria 34520 Apr 17 09:58 LICENSE
+  drwxr-xr-x 3 victoria victoria  4096 Apr 17 09:58 postgresql
+  -rw-r--r-- 1 victoria victoria  1235 Apr 17 09:58 README.md
+  drwxr-xr-x 2 victoria victoria  4096 Apr 17 09:58 script
+
+[victoria@victoria ncbi-gene-pg]$ ./01_import_data.sh 
+  Usage: ./01_import_data.sh <PG_URL> <BASE_DIR> <DATA_DIR>
+
+## TEST, TO SORT OUT WHAT $BASE_DIR AND $DATA_DIR ARE:
+
+[victoria@victoria ncbi-gene-pg]$ ./01_import_data.sh postgresql://localhost:5432/ncbi . .
+
+  ...
+  2018-04-17 11:12:15 (2.83 MB/s) - ‘seq_gene.md.gz’ saved [29604027]
+
+  [INFO] 2018-04-17 11:12:15 Importing data...
+  COPY 60193
+  ./01_import_data.sh: line 41: ./script/cleanup_seqgene.py: No such file or directory
+  COPY 0
+
+##  OK, that script downloaded the NCBI date to /mnt/Vancouver/apps/ncbi-gene-pg/NCBI_GENE/
+##     /mnt/Vancouver/apps/ncbi-gene-pg/NCBI_GENE/gene_info.gz
+##     /mnt/Vancouver/apps/ncbi-gene-pg/NCBI_GENE/seq_gene.md.gz
+## The cleanup script is "/mnt/Vancouver/apps/ncbi-gene-pg/script/cleanup_seqgene.py"
+## Thus:
+##   <PG_URL> : postgresql://localhost:5432/ncbi
+## <BASE_DIR> : /mnt/Vancouver/apps/ncbi-gene-pg
+## <DATA_DIR> : change to /mnt/Vancouver/Programming/data/ncbi/
+## Note that prior to re-running the 01_import_data.sh script (below), I moved the previously
+## downloaded NCBI_GENE download to: /mnt/Vancouver/Programming/data/ncbi/NCBI_GENE
+
+[victoria@victoria ncbi-gene-pg]$ ./01_import_data.sh 
+  Usage: ./01_import_data.sh <PG_URL> <BASE_DIR> <DATA_DIR>
+
+[victoria@victoria ncbi-gene-pg]$ ./01_import_data.sh postgresql://localhost:5432/ncbi /mnt/Vancouver/apps/ncbi-gene-pg /mnt/Vancouver/Programming/data/ncbi
+
+  [INFO] 2018-04-17 11:19:08 Fetching data...
+  --2018-04-17 11:19:08--  ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz
+            => ‘gene_info.gz’
+  Resolving ftp.ncbi.nlm.nih.gov (ftp.ncbi.nlm.nih.gov)... 130.14.250.10, 2607:f220:41e:250::12
+  Connecting to ftp.ncbi.nlm.nih.gov (ftp.ncbi.nlm.nih.gov)|130.14.250.10|:21... connected.
+  Logging in as anonymous ... Logged in!
+  ==> SYST ... done.    ==> PWD ... done.
+  ==> TYPE I ... done.  ==> CWD (1) /gene/DATA ... done.
+  ==> SIZE gene_info.gz ... 425798821
+  File has already been retrieved.
+  2018-04-17 11:19:09 (0.00 B/s) - ‘gene_info.gz’ saved [425798821]
+
+  --2018-04-17 11:19:09--  ftp://ftp.ncbi.nlm.nih.gov/genomes/MapView/Homo_sapiens/sequence/ANNOTATION_RELEASE.105/initial_release/seq_gene.md.gz
+            => ‘seq_gene.md.gz’
+  Resolving ftp.ncbi.nlm.nih.gov (ftp.ncbi.nlm.nih.gov)... 130.14.250.10, 2607:f220:41e:250::12
+  Connecting to ftp.ncbi.nlm.nih.gov (ftp.ncbi.nlm.nih.gov)|130.14.250.10|:21... connected.
+  Logging in as anonymous ... Logged in!
+  ==> SYST ... done.    ==> PWD ... done.
+  ==> TYPE I ... done.  ==> CWD (1) /genomes/MapView/Homo_sapiens/sequence/ANNOTATION_RELEASE.105/initial_release ... done.
+  ==> SIZE seq_gene.md.gz ... 29604027
+  File has already been retrieved.
+  2018-04-17 11:19:09 (0.00 B/s) - ‘seq_gene.md.gz’ saved [29604027]
+
+  [INFO] 2018-04-17 11:19:09 Importing data...
+  COPY 60193
+  COPY 40015
+  [INFO] 2018-04-17 11:19:32 Done
+
+[victoria@victoria ncbi-gene-pg]$ 
+```
+
+**Tests:**
+
+```
+## NOW (back in psql):   :-D
+
+[ncbi]# -- Just ran the /mnt/Vancouver/apps/ncbi-gene-pg/01_import_data.sh script
+
+[ncbi]# show data_directory;
+┌───────────────────────────────────────────────────────┐
+│                    data_directory                     │
+├───────────────────────────────────────────────────────┤
+│ /mnt/Vancouver/Programming/RDB/postgres/postgres/data │
+└───────────────────────────────────────────────────────┘
+
+[ncbi]# \dt
+             List of relations
+┌────────┬──────────────┬───────┬──────────┐
+│ Schema │     Name     │ Type  │  Owner   │
+├────────┼──────────────┼───────┼──────────┤
+│ public │ ncbigeneinfo │ table │ victoria │
+│ public │ ncbiseqgene  │ table │ victoria │
+└────────┴──────────────┴───────┴──────────┘
+
+[ncbi]# -- Those relations (tables; above) were created by:
+[ncbi]# -- /mnt/Vancouver/apps/ncbi-gene-pg/postgresql/schema/create_tables.sql
+
+[ncbi]# \l
+                                    List of databases
+┌─────────────┬───────────┬──────────┬─────────────┬─────────────┬───────────────────────┐
+│    Name     │   Owner   │ Encoding │   Collate   │    Ctype    │   Access privileges   │
+├─────────────┼───────────┼──────────┼─────────────┼─────────────┼───────────────────────┤
+│ metabolicdb │ metabolic │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │                       │
+│ metabolism  │ victoria  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │                       │
+│ ncbi        │ victoria  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │                       │
+│ postgres    │ postgres  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │                       │
+│ template0   │ postgres  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │ =c/postgres          ↵│
+│             │           │          │             │             │ postgres=CTc/postgres │
+│ template1   │ postgres  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │ =c/postgres          ↵│
+│             │           │          │             │             │ postgres=CTc/postgres │
+│ zzz         │ victoria  │ UTF8     │ en_US.UTF-8 │ en_US.UTF-8 │                       │
+└─────────────┴───────────┴──────────┴─────────────┴─────────────┴───────────────────────┘
+
+[ncbi]# -- schemas:
+
+[ncbi]# \dnS
+         List of schemas
+┌────────────────────┬──────────┐
+│        Name        │  Owner   │
+├────────────────────┼──────────┤
+│ information_schema │ postgres │
+│ pg_catalog         │ postgres │
+│ pg_temp_1          │ postgres │
+│ pg_toast           │ postgres │
+│ pg_toast_temp_1    │ postgres │
+│ public             │ postgres │
+└────────────────────┴──────────┘
+
+[ncbi]# -- https://github.com/knmkr/ncbi-gene-pg
+
+[ncbi]# SELECT gene_id, symbol, chromosome, map_location, description FROM ncbigeneinfo WHERE gene_id = 672;
+┌─────────┬────────┬────────────┬──────────────┬──────────────────────────────┐
+│ gene_id │ symbol │ chromosome │ map_location │         description          │
+├─────────┼────────┼────────────┼──────────────┼──────────────────────────────┤
+│     672 │ BRCA1  │ 17         │ 17q21.31     │ BRCA1, DNA repair associated │
+└─────────┴────────┴────────────┴──────────────┴──────────────────────────────┘
+
+[ncbi]# SELECT gene_id, symbol, chromosome, map_location, description FROM ncbigeneinfo WHERE gene_id = 672;
+┌─────────┬────────┬────────────┬──────────────┬──────────────────────────────┐
+│ gene_id │ symbol │ chromosome │ map_location │         description          │
+├─────────┼────────┼────────────┼──────────────┼──────────────────────────────┤
+│     672 │ BRCA1  │ 17         │ 17q21.31     │ BRCA1, DNA repair associated │
+└─────────┴────────┴────────────┴──────────────┴──────────────────────────────┘
+
+[ncbi]# SELECT gene_id, symbol, chromosome, map_location, description FROM ncbigeneinfo WHERE gene_id = 672;
+
+┌─────────┬────────┬────────────┬──────────────┬──────────────────────────────┐
+│ gene_id │ symbol │ chromosome │ map_location │         description          │
+├─────────┼────────┼────────────┼──────────────┼──────────────────────────────┤
+│     672 │ BRCA1  │ 17         │ 17q21.31     │ BRCA1, DNA repair associated │
+└─────────┴────────┴────────────┴──────────────┴──────────────────────────────┘
+
+[ncbi]# 
+
+## WOOT!!!
+```
